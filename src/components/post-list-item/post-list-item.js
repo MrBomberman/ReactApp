@@ -3,32 +3,11 @@ import './post-list-item.css';
 
 
 export default class PostListItem extends Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            important: false, // состояние компонента
-            like: false
-        };
-
-        this.onImportant = () =>  {
-            this.setState(state => ({ // работает с состоянием компонента
-                important: !state.important
-            }))
-        }
-
-        this.onLike = () =>  {
-            this.setState(state => ({ // работает с состоянием компонента
-                like: !state.like
-            }))
-        }
-    }
-
 
 
     render() { //  метод наших классов в виде компонентов
 
-        const {label, onDelete} = this.props; // свойство, которое будет приходить в каждый новосозданный компонент PostListItem
-        const {important, like} = this.state;
+        const {label, onDelete, onToggleImportant, onToggleLiked, important, like} = this.props; // свойство, которое будет приходить в каждый новосозданный компонент PostListItem
         let classNames = 'app-list-item d-flex justify-content-between';
 
         if (important) {
@@ -41,13 +20,13 @@ export default class PostListItem extends Component {
 
         return (
             <div className={classNames}> 
-            <span className='app-list-item-label' onClick={this.onLike}>
+            <span className='app-list-item-label' onClick={onToggleLiked}>
                 {label} 
 
             </span>
             <div className='d-flex justify-content-center align-items-center'>
                 <button type='button' className='btn-star btn-sm'
-                onClick={this.onImportant}>
+                onClick={onToggleImportant}>
                     <i className='fa fa-star'></i>
                 </button>
                 <button type='button' className='btn-trash btn-sm'
