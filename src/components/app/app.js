@@ -27,12 +27,16 @@ export default class App extends Component {
                 {label: 'Going to learn React', important:true,like:false, id :1},
                 {label: 'That is good...', important:false,like:false, id: 2},
                 {label: 'I need to relax', important:false,like:false, id: 3}
-            ]
+            ],
+            term: '', // будем использовать, чтобы проходится по нашим постам и пытаться найти пост, который понравился пользователю
+            filter: 'all' // состояние говорит о том, как именно отфильтровать наши посты
         };
         this.deleteItem = this.deleteItem.bind(this);
         this.addItem = this.addItem.bind(this);
         this.onToggleImportant = this.onToggleImportant.bind(this);
         this.onToggleLiked = this.onToggleLiked.bind(this);
+        this.onUpdateSearch = this.onUpdateSearch.bind(this);
+        this.onFilterSelect = this.onFilterSelect.bind(this);
 
         this.maxId = 4;
 
@@ -99,8 +103,36 @@ export default class App extends Component {
         })
     }
 
+
+    searchPost(items, term) { //  в items дуем искать посты и строка поиска - term    
+        if (term.length === 0){ // если пользователь ничего не ввел, просто возвращаем наши посты
+            return items
+        }
+
+        return items.filter((item) => {
+            return item.label.indexOf(term) > -1; // в каждом элементе находим свойство label, а внутри этого свойства находим то, что ввел пользователь
+        });
+    }
+
+    filterPost(items, filter){
+        if (filter === 'like') {
+            return items.filter(item => item.like) //  через эту функцию формируем новый объект пролайканых элементов
+        } else {
+            return items // иначе возвращаем все элементы, которые попали в нашу главную функцию
+        }
+    }
+
+    onUpdateSearch(term){
+        this.setState({term})
+    }
+
+    onFilterSelect(filter){
+        this.setState({filter})
+    }
+
+    
     render () {
-        const {data} = this.state; // деструктурируем массив
+        const {data, term, filter} = this.state; // деструктурируем массив
 
         const liked = data.filter(item => {
             return item.like; // проходимся по каждому элементу, проверяя состояние like, если true, то мы возвращаем элемент с лайком
@@ -108,16 +140,22 @@ export default class App extends Component {
 
         const allPosts = data.length; // узнаем кол-во постов в общем
 
+
+        const visiblePosts = this.filterPost(this.searchPost(data, term), filter); // передаем данные, из которых будут вытаскиваться посты
+        // сначала передаем массив, которые был сформирован функцией  searchPost,а второй аргумент - фильтер
         return (
             <AppBlock>
             <AppHeader
             liked={liked}
             allPosts={allPosts}/>
                 <div className="search-panel d-flex">
-                    <SearchPanel/>
-                    <PostStatusFilter/>
+                    <SearchPanel
+                    onUpdateSearch={this.onUpdateSearch}/>
+                    <PostStatusFilter
+                    filter={filter}
+                    onFilterSelect={this.onFilterSelect}/>
                 </div>
-                <PostList posts={this.state.data}
+                <PostList posts={visiblePosts}
                 onDelete={this.deleteItem}
                 onToggleImportant={this.onToggleImportant}
                 onToggleLiked={this.onToggleLiked}/>
